@@ -14,6 +14,12 @@ describe('streamReaders', () => {
       expect(tok).to.have.property('length', 3);
     });
 
+    it('reads comment properly', () => {
+      const tok = streamReaders.comment('<!--function(){console.log("test");}-->');
+      expect(tok).to.have.property('content', 'function(){console.log("test");}-->');
+      expect(tok).to.have.property('length', 39);
+    });
+
     it('returns undefined for no comment', () => {
       const tok = streamReaders.comment('-!->');
       expect(tok).not.to.be.ok();
@@ -55,7 +61,7 @@ describe('streamReaders', () => {
       expect(tok).to.have.property('length', 30);
     });
 
-    it('returns undefined for a broken atomic tag', () => {
+    it('returns undefined for a broken atomic tag', () => { // CLEANUP
       const tok = streamReaders.atomicTag('<b class="foo">content</i>');
       expect(tok).not.to.be.ok();
     });

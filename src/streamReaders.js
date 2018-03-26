@@ -22,7 +22,7 @@ const REGEXES = {
 export function comment(stream) {
   const index = stream.indexOf('-->');
   if (index >= 0) {
-    return new CommentToken(stream.substr(4, index - 1), index + 3);
+    return new CommentToken(stream.substr(4, index - 1), index + 3); 
   }
 }
 
