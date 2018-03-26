@@ -21,7 +21,7 @@ const CLOSESELF = /^(COLGROUP|DD|DT|LI|OPTIONS|P|TD|TFOOT|TH|THEAD|TR)$/i;
 function correct(tok) {
   if (tok && tok.type === 'startTag') {
     tok.unary = EMPTY.test(tok.tagName) || tok.unary;
-    tok.html5Unary = !(/\/>$/).test(tok.text);
+    tok.html5Unary = !(/\/>$/).test(tok.text); 
   }
   return tok;
 }
@@ -50,7 +50,8 @@ function closeLast(parser, stack) {
   const tok = stack.pop();
 
   // prepend close tag to stream.
-  parser.prepend(`</${tok.tagName}>`);
+  // parser.prepend(`</${tok.tagName}>`); // CLEANUP
+  return;
 }
 
 /**
