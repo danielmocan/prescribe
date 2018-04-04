@@ -61,9 +61,13 @@ describe('streamReaders', () => {
       expect(tok).to.have.property('length', 30);
     });
 
-    it('returns undefined for a broken atomic tag', () => { // CLEANUP
+    it('returns undefined for a broken atomic tag', () => {
       const tok = streamReaders.atomicTag('<b class="foo">content</i>');
-      expect(tok).not.to.be.ok();
+      expect(tok).to.have.property('tagName', 'b');
+      expect(tok).to.have.property('attrs');
+      expect(tok.attrs).to.have.property('class', 'foo');
+      expect(tok).to.have.property('content', 'content');
+      expect(tok).to.have.property('length', 22); // length is weird
     });
   });
 
