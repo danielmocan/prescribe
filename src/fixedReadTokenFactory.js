@@ -50,8 +50,7 @@ function closeLast(parser, stack) {
   const tok = stack.pop();
 
   // prepend close tag to stream.
-  // parser.prepend(`</${tok.tagName}>`); // CLEANUP
-  return;
+  parser.prepend(`</${tok.tagName}>`); 
 }
 
 /**

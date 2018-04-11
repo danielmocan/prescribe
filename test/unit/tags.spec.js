@@ -2,6 +2,10 @@ import {testParse, parses, fixes, parsesCompletely} from '../helpers/testParse';
 
 describe('HtmlParser (tags)', () => {
   describe('#readToken', () => {
+    it('parses html tag and comment completely', parsesCompletely('<div id="foo"><i> djhgdg </d>hi there</div><!-- <script type="javascript">/* sgksjgs */ var d = "test"; //test variable </script>-->', s => {
+      expect(s).to.equal('<div id="foo"><i> djhgdg </d>hi there</div><!-- <script type="javascript">/* sgksjgs */ var d = "test"; //test variable </script>-->');
+    }));
+
     it('parses closed div tag completely', parsesCompletely('<div id="foo">hi there</div>', s => {
       expect(s).to.equal('<div id="foo">hi there</div>');
     }));
@@ -18,20 +22,24 @@ describe('HtmlParser (tags)', () => {
       expect(s).to.equal('<div id="foo">hi there');
     }));
 
-    it('parses open script tag completely', parsesCompletely('<script id="foo" text="text/javascript">// hi there', s => {
-      expect(s).to.equal(''); // CLEANUP
+    it('parses broken atomic tag completely', parsesCompletely('<b class="foo">content</i>', s => {
+      expect(s).to.equal('<b class="foo">content</i>');
+    }));
+
+    it('parses open script tag completely', parsesCompletely('<script id="foo" text="text/javascript">// hi there<script>', s => {
+      expect(s).to.equal('<script id="foo" text="text/javascript">// hi there</script><script></script>');
     }));
 
     it('parses open style tag completely', parsesCompletely('<style id="foo" text="text/css">/* hi there */', s => {
-      expect(s).to.equal(''); // CLEANUP
+      expect(s).to.equal('<style id="foo" text="text/css">/* hi there */</style>');
     }));
 
     it('parses open SCRIPT tag completely', parsesCompletely('<SCRIPT id="foo" text="text/javascript">// hi there', s => {
-      expect(s).to.equal(''); // CLEANUP
+      expect(s).to.equal('<SCRIPT id="foo" text="text/javascript">// hi there</SCRIPT>');
     }));
 
     it('parses open STYLE tag completely', parsesCompletely('<STYLE id="foo" text="text/css">/* hi there */', s => {
-      expect(s).to.equal(''); // CLEANUP
+      expect(s).to.equal('<STYLE id="foo" text="text/css">/* hi there */</STYLE>');
     }));
 
     it('parses closed FB tags completely', parsesCompletely('<fb:ad placementid="1234" format="320x50" testmode="true">FB</fb:ad>', s => {
@@ -118,32 +126,28 @@ describe('HtmlParser (tags)', () => {
       expect(str).to.equal('</DIV>');
     });
 
-    it.skip('fixes missing end tag', fixes('<div><i></div>foo', s => {
+    it('fixes missing end tag', fixes('<div><i></div>foo', s => {
       expect(s).to.equal('<div><i></i></div>foo');
     }));
 
-    it.skip('fixes nested missing end tag', fixes('<div><i><div>foo</div><div><i>', s => {
+    it('fixes nested missing end tag', fixes('<div><i><div>foo</div><div><i>', s => {
       expect(s).to.equal('<div><i><div>foo</div><div><i>');
     }));
 
-    it.skip('fixes missing end tag', fixes('<div><i></div><div>foo', s => {
+    it('fixes missing end tag', fixes('<div><i></div><div>foo', s => {
       expect(s).to.equal('<div><i></i></div><div>foo');
     }));
 
-    it.skip('fixes missing start tag', fixes('</i>foo', s => {
+    it('fixes missing start tag', fixes('</i>foo', s => {
       expect(s).to.equal('foo');
     }));
 
-    it.skip('fixes multiple missing tags', fixes('<div><i></div><div>foo<i></div>bar', s => {
+    it('fixes multiple missing tags', fixes('<div><i></div><div>foo<i></div>bar', s => {
       expect(s).to.equal('<div><i></i></div><div>foo<i></i></div>bar');
     }));
 
-    it.skip('fixes multiple nested mismatching tags', fixes('<div><b><i></div>foo<div>bar<i></b>bla', s => {
+    it('fixes multiple nested mismatching tags', fixes('<div><b><i></div>foo<div>bar<i></b>bla', s => {
       expect(s).to.equal('<div><b><i></i></b></div>foo<div>bar<i></i></div>bla');
-    }));
-
-    it('leaves missing tags open', fixes('<div><b><i></div>foo<div>bar<i></b>bla', s => {
-      expect(s).to.equal('<div><b><i></div>foo<div>bar<i></b>bla');
     }));
 
     it('handles tag', parsesCompletely('<div id="remote">foo</div>', s => {

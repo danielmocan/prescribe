@@ -97,7 +97,6 @@ export default class HtmlParser {
       if (detect.hasOwnProperty(type)) {
         if (detect[type].test(this.stream)) {
           const token = streamReaders[type](this.stream);
-
           if (token) {
             if (token.type === 'startTag' &&
                 (/script|style/i).test(token.tagName)) {

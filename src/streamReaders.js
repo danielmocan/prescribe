@@ -22,7 +22,7 @@ const REGEXES = {
 export function comment(stream) {
   const index = stream.indexOf('-->');
   if (index >= 0) {
-    return new CommentToken(stream.substr(4, index - 1), index + 3); 
+    return new CommentToken(stream.substr(4, index - 1), index + 3);
   }
 }
 
@@ -86,12 +86,24 @@ export function atomicTag(stream) {
     // for optimization, we check first just for the end tag
     if (rest.match(new RegExp('<\/\\s*' + start.tagName + '\\s*>', 'i'))) {
       // capturing the content is inefficient, so we do it inside the if
-      const match = rest.match(new RegExp('([\\s\\S]*?)<\/\\s*' + start.tagName + '\\s*>', 'i'));
+      const match = rest.match(new RegExp('([\\s\\S]*?)<\/\\s*' + start.tagName + '\\s*>', 'i')); // CLEANUP 1
       if (match) {
         return new AtomicTagToken(start.tagName,
           match[0].length + start.length,
           start.attrs, start.booleanAttrs, match[1]);
       }
+    } else if (rest.match(new RegExp('[\\s\\S]*?<', 'i'))) {
+      // capturing the content is inefficient, so we do it inside the if
+      const match = rest.match(new RegExp('([\\s\\S]*?)<', 'i')); // CLEANUP 1
+      if (match) {
+        return new AtomicTagToken(start.tagName,
+          match[0].length + start.length - 1,
+          start.attrs, start.booleanAttrs, match[1]);
+      }
+    } else {
+        return new AtomicTagToken(start.tagName,
+          rest.length + start.length,
+          start.attrs, start.booleanAttrs, rest);
     }
   }
 }
