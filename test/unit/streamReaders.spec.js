@@ -10,7 +10,7 @@ describe('streamReaders', () => {
 
     it('reads comment with remainder', () => {
       const tok = streamReaders.comment('-->foo');
-      expect(tok).to.have.property('content', '');
+      expect(tok).to.have.property('content', 'f');
       expect(tok).to.have.property('length', 3);
     });
 
