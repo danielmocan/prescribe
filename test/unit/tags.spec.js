@@ -27,7 +27,7 @@ describe('HtmlParser (tags)', () => {
     }));
 
     it('parses open script tag completely', parsesCompletely('<script id="foo" text="text/javascript">// hi there<script>', s => {
-      expect(s).to.equal('<script id="foo" text="text/javascript">// hi there</script><script></script>');
+      expect(s).to.equal('<script id="foo" text="text/javascript">// hi there</script><script>');
     }));
 
     it('parses open style tag completely', parsesCompletely('<style id="foo" text="text/css">/* hi there */', s => {
