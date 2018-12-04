@@ -1,4 +1,3 @@
 lib/**
-dist/**
 node_modules/**
 test/karma-intellij.config.js
