@@ -89,17 +89,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var streamReaders = _interopRequireWildcard(_streamReaders);
 
-	var _fixedReadTokenFactory = __webpack_require__(6);
-
-	var _fixedReadTokenFactory2 = _interopRequireDefault(_fixedReadTokenFactory);
-
 	var _utils = __webpack_require__(5);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	// import fixedReadTokenFactory from './fixedReadTokenFactory';
+
 
 	/**
 	 * Detection regular expressions.
@@ -131,38 +127,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @param {boolean} options.autoFix Set to true to automatically fix errors
 	   */
 	  function HtmlParser() {
-	    var _this = this;
-
 	    var stream = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 	    _classCallCheck(this, HtmlParser);
 
 	    this.stream = stream;
-
-	    var fix = false;
-	    var fixedTokenOptions = {};
-
-	    for (var key in supports) {
+	    /*
+	      This is for when we use autofix for tags, but we do not want the content of the ad 
+	      let fix = false;
+	    const fixedTokenOptions = {};
+	     for (let key in supports) {
 	      if (supports.hasOwnProperty(key)) {
 	        if (options.autoFix) {
-	          fixedTokenOptions[key + 'Fix'] = true; // !supports[key];
+	          fixedTokenOptions[`${key}Fix`] = true; // !supports[key];
 	        }
-	        fix = fix || fixedTokenOptions[key + 'Fix'];
+	        fix = fix || fixedTokenOptions[`${key}Fix`];
 	      }
 	    }
-
-	    if (fix) {
-	      this._readToken = (0, _fixedReadTokenFactory2['default'])(this, fixedTokenOptions, function () {
-	        return _this._readTokenImpl();
-	      });
-	      this._peekToken = (0, _fixedReadTokenFactory2['default'])(this, fixedTokenOptions, function () {
-	        return _this._peekTokenImpl();
-	      });
+	     if (fix) {
+	      this._readToken = fixedReadTokenFactory(this, fixedTokenOptions, () => this._readTokenImpl());
+	      this._peekToken = fixedReadTokenFactory(this, fixedTokenOptions, () => this._peekTokenImpl());
 	    } else {
 	      this._readToken = this._readTokenImpl;
 	      this._peekToken = this._peekTokenImpl;
 	    }
+	    */
 	  }
 
 	  /**
@@ -771,159 +761,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return (/\\/.test(prefix) ? prefix + '"' : prefix + '\\"'
 	    );
 	  });
-	}
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	exports['default'] = fixedReadTokenFactory;
-	/**
-	 * Empty Elements - HTML 4.01
-	 *
-	 * @type {RegExp}
-	 */
-	var EMPTY = /^(AREA|BASE|BASEFONT|BR|COL|FRAME|HR|IMG|INPUT|ISINDEX|LINK|META|PARAM|EMBED)$/i;
-
-	/**
-	 * Elements that you can intentionally leave open (and which close themselves)
-	 *
-	 * @type {RegExp}
-	 */
-	var CLOSESELF = /^(COLGROUP|DD|DT|LI|OPTIONS|P|TD|TFOOT|TH|THEAD|TR)$/i;
-
-	/**
-	 * Corrects a token.
-	 *
-	 * @param {Token} tok The token to correct
-	 * @returns {Token} The corrected token
-	 */
-	function correct(tok) {
-	  if (tok && tok.type === 'startTag') {
-	    tok.unary = EMPTY.test(tok.tagName) || tok.unary;
-	    tok.html5Unary = !/\/>$/.test(tok.text);
-	  }
-	  return tok;
-	}
-
-	/**
-	 * Peeks at the next token in the parser.
-	 *
-	 * @param {HtmlParser} parser The parser
-	 * @param {Function} readTokenImpl The underlying readToken implementation
-	 * @returns {Token} The next token
-	 */
-	function peekToken(parser, readTokenImpl) {
-	  var tmp = parser.stream;
-	  var tok = correct(readTokenImpl());
-	  parser.stream = tmp;
-	  return tok;
-	}
-
-	/**
-	 * Closes the last token.
-	 *
-	 * @param {HtmlParser} parser The parser
-	 * @param {Array<Token>} stack The stack
-	 */
-	function closeLast(parser, stack) {
-	  var tok = stack.pop();
-
-	  // prepend close tag to stream.
-	  parser.prepend('</' + tok.tagName + '>');
-	}
-
-	/**
-	 * Create a new token stack.
-	 *
-	 * @returns {Array<Token>}
-	 */
-	function newStack() {
-	  var stack = [];
-
-	  stack.last = function () {
-	    return this[this.length - 1];
-	  };
-
-	  stack.lastTagNameEq = function (tagName) {
-	    var last = this.last();
-	    return last && last.tagName && last.tagName.toUpperCase() === tagName.toUpperCase();
-	  };
-
-	  stack.containsTagName = function (tagName) {
-	    for (var i = 0, tok; tok = this[i]; i++) {
-	      if (tok.tagName === tagName) {
-	        return true;
-	      }
-	    }
-	    return false;
-	  };
-
-	  return stack;
-	}
-
-	/**
-	 * Return a readToken implementation that fixes input.
-	 *
-	 * @param {HtmlParser} parser The parser
-	 * @param {Object} options Options for fixing
-	 * @param {boolean} options.tagSoupFix True to fix tag soup scenarios
-	 * @param {boolean} options.selfCloseFix True to fix self-closing tags
-	 * @param {Function} readTokenImpl The underlying readToken implementation
-	 * @returns {Function}
-	 */
-	function fixedReadTokenFactory(parser, options, readTokenImpl) {
-	  var stack = newStack();
-
-	  var handlers = {
-	    startTag: function startTag(tok) {
-	      var tagName = tok.tagName;
-
-	      if (tagName.toUpperCase() === 'TR' && stack.lastTagNameEq('TABLE')) {
-	        parser.prepend('<TBODY>');
-	        prepareNextToken();
-	      } else if (options.selfCloseFix && CLOSESELF.test(tagName) && stack.containsTagName(tagName)) {
-	        if (stack.lastTagNameEq(tagName)) {
-	          closeLast(parser, stack);
-	        } else {
-	          parser.prepend('</' + tok.tagName + '>');
-	          prepareNextToken();
-	        }
-	      } else if (!tok.unary) {
-	        stack.push(tok);
-	      }
-	    },
-	    endTag: function endTag(tok) {
-	      var last = stack.last();
-	      if (last) {
-	        if (options.tagSoupFix && !stack.lastTagNameEq(tok.tagName)) {
-	          // cleanup tag soup
-	          closeLast(parser, stack);
-	        } else {
-	          stack.pop();
-	        }
-	      } else if (options.tagSoupFix) {
-	        // cleanup tag soup part 2: skip this token
-	        readTokenImpl();
-	        prepareNextToken();
-	      }
-	    }
-	  };
-
-	  function prepareNextToken() {
-	    var tok = peekToken(parser, readTokenImpl);
-	    if (tok && handlers[tok.type]) {
-	      handlers[tok.type](tok);
-	    }
-	  }
-
-	  return function fixedReadToken() {
-	    prepareNextToken();
-	    return correct(readTokenImpl());
-	  };
 	}
 
 /***/ }

@@ -1,6 +1,6 @@
 import * as supports from './supports';
 import * as streamReaders from './streamReaders';
-import fixedReadTokenFactory from './fixedReadTokenFactory';
+// import fixedReadTokenFactory from './fixedReadTokenFactory';
 import {escapeQuotes} from './utils';
 
 /**
@@ -33,7 +33,9 @@ export default class HtmlParser {
    */
   constructor(stream = '', options = {}) {
     this.stream = stream;
-
+    /*
+      This is for when we use autofix for tags, but we do not want the content of the ad 
+ 
     let fix = false;
     const fixedTokenOptions = {};
 
@@ -53,6 +55,7 @@ export default class HtmlParser {
       this._readToken = this._readTokenImpl;
       this._peekToken = this._peekTokenImpl;
     }
+    */
   }
 
   /**
