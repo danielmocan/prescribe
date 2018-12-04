@@ -153,6 +153,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this._peekToken = this._peekTokenImpl;
 	    }
 	    */
+	    this._readToken = this._readTokenImpl;
+	    this._peekToken = this._peekTokenImpl;
 	  }
 
 	  /**
